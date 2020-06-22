@@ -472,6 +472,74 @@ query HeroNameAndFriends($episode: Episode = "JEDI") {
 
 모든 변수에 기본값이 제공되면 변수를 전달하지 않고도 쿼리를 호출할 수 있습니다. 변수가 전달되면 변수는 기본값을 덮어씁니다.
 
+## 지시어
+
+위에서는 동적 쿼리를 구현하기 위해 변수를 사용하여 문자열을 연결하는 작업을 피하는 방법에 대해 알아보았습니다. 인자에 변수를 전달하면 이러한 문제를 상당히 쉽게 해결할 수 있지만, 변수를 사용하여 쿼리의 구조와 형태를 동적으로 변경하는 방법이 필요할 수도 있습니다.
+
+이러한 구성 요소에 대한 쿼리를 작성해 보겠습니다.
+
+> 위에 해당하는 쿼리 예
+
+```GraphQL
+query Hero($episode: Episode, $withFriends: Boolean!) {
+  hero(episode: $episode) {
+    name
+    friends @include(if: $withFriends) {
+      name
+    }
+  }
+}
+
+# VARIABLES
+{
+  "episode": "JEDI",
+  "withFriends": false
+}
+```
+
+> 쿼리 결과 예
+
+```GraphQL
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2"
+    }
+  }
+}
+```
+
+위 변수를 수정하여 `withFriends` 에 `true`로 변경하게 된다면 아래와 같은 결과가 나옵니다.
+
+```GraphQL
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "friends": [
+        {
+          "name": "Luke Skywalker"
+        },
+        {
+          "name": "Han Solo"
+        },
+        {
+          "name": "Leia Organa"
+        }
+      ]
+    }
+  }
+}
+```
+
+`변수를 사용하여 쿼리의 구조와 형태을 동적으로 변경하는 방법이 필요할 수도 있습니다`라는 문제를 해결하기 위해서는 _지시어_ 라는 GraphQL의 새로운 기능을 사용해야 합니다. 지시어는 필드나 프래그먼트 안에 삽입될 수 있으며 서버가 원하는 방식으로 쿼리 실행에 영향을 줄 수 있습니다. 코어 GraphQL 사양에는 두 가지 지시어가 포함되어 있으며, 이는 GraphQL 서버에서 지원해야 합니다.
+
+- `@include(if: Boolean)`: 인자가 `true` 인 경우에만 이 필드를 결과에 포함합니다.
+
+- `@skip(if: Boolean)` 인자가 `true` 이면 이 필드를 건너뜁니다.
+
+지시어는 쿼리의 필드를 추가하고 제거하기 위해 문자열을 조작을 해야하는 상황을 피하는데 유용할 수 있습니다. 서버에서는 새로운 지시어를 정의하여 실험적인 기능을 추가할 수도 있습니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/queries/) - https://graphql-kr.github.io/learn/queries/
