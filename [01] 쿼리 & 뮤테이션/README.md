@@ -390,6 +390,88 @@ query HeroNameAndFriends {
 
 예를 들어, JavasScrip에서는 쉽게 익명 함수를 사용할 수 있지만, 함수에 이름을 부여하면 코드를 디버깅하고 호출되었을 때 로깅하는 것이 더 쉽습니다. 같은 방식으로, GraphQL 쿼리와 뮤테이션 이름과 프래그먼트 이름은 서버 측에서 Graph 요청을 식별하는데 유용한 디버깅 도구가 될 수 있습니다.
 
+## 변수
+
+지금까지는 모든 인자를 쿼리 문자열 안에 작성했습니다. 그러나 대부분의 응용프로그램에서 필드에 대한 인자는 **동적**입니다. 예를 들어, 어떤 스타워즈 에피소드에 관심이 있는지를 선택할 수 있는 드롭다운, 검색필드, 필터 등이 있을 수도 있습니다.
+
+클라이언트 측 코드는 쿼리 문자열을 런타임에 동적으로 조작하고 이를 GraphQL의 특정한 포맷으로 직렬화해야하기 때문에 이러한 동적 인자를 쿼리 문자열에 직접 전달하는 것은 좋은 방법이 아닙니다. 대신 GraphQL은 동적 값을 쿼리에서 없애고, 이를 별도로 전달하는 방법을 제공합니다. 이러한 값을 _변수_ 라고 합니다.
+
+변수를 사용하기 위해서는 다음 세 가지 작업을 해야 합니다.
+
+1. 쿼리안의 정적 값을 `$variableName` 으로 변경합니다.
+2. `$variableName` 을 쿼리에서 받는 변수로 선언합니다.
+3. 별도의 통신규약(일반적으로는 JSON) 변수에 `variableName: value` 을 전달하세요.
+
+다음과 같은 형태를 띄게 됩니다.
+
+> 변수를 사용한 쿼리 예
+
+```GraphQL
+query HeroNameAndFriends($episode: Episode) {
+  hero(episode: $episode) {
+    name
+    friends {
+      name
+    }
+  }
+}
+
+# VARIABLES
+{
+  "episode": "JEDI"
+}
+```
+
+> 변수를 사용한 쿼리 결과 예
+
+```GraphQL
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "friends": [
+        {
+          "name": "Luke Skywalker"
+        },
+        {
+          "name": "Han Solo"
+        },
+        {
+          "name": "Leia Organa"
+        }
+      ]
+    }
+  }
+}
+```
+
+이제 클라이언트 코드에서 완전히 새로운 쿼리를 작성하지 않고 간단하게 다른 변수를 전달할 수 있습니다. 이는 일반적으로 쿼리의 어떤 인자가 동적인지를 나타내는 좋은 방법이기도 합니다. **사용자가 제공한 값으로 문자열을 연결해서 사용해서는 안됩니다.**
+
+### 변수 정의
+
+변수 정의는 위 쿼리에서 `($episode: Episode)` 부분입니다. 정적타입 언어의 함수에 대한 인자 정의와 동일합니다. `$` 접두사가 붙은 모든 변수를 나열하고 그 뒤에 타입(이 경우 `Episode`)이 옵니다.
+
+### 변수 기본값
+
+타입 선언 다음에 기본값을 명시하여 쿼리의 변수에 기본값을 할당할 수도 있습니다.
+
+> 변수의 기본값을 사용한 쿼리 예
+
+```GraphQL
+query HeroNameAndFriends($episode: Episode = "JEDI") {
+  hero(episode: $episode) {
+    name
+    friends {
+      name
+    }
+  }
+}
+```
+
+> ![](./defaultValue.png) 위 사진에서 보이듯이 디폴트 변수가 에러가 나는데 왜그런지 모르겠다.
+
+모든 변수에 기본값이 제공되면 변수를 전달하지 않고도 쿼리를 호출할 수 있습니다. 변수가 전달되면 변수는 기본값을 덮어씁니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/queries/) - https://graphql-kr.github.io/learn/queries/
