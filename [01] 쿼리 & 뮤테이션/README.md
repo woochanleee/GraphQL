@@ -340,6 +340,56 @@ fragment comparisonFields on Character {
 }
 ```
 
+## 작업(Operation) 이름
+
+지금까지는 `query` 키워드와 `query` 이름을 모두 생략 한 단축 문법을 사용했지만, 실제 애플리케이션에서는 코드를 덜 헷갈리게 작성하는 것이 좋습니다.
+
+다음은 `query` 를 작업 타입, `HeroNameAndFriends` 를 작업 이름으로한 예제입니다.
+
+> 작업 이름을 이용한 쿼리 예
+
+```GraphQL
+query HeroNameAndFriends {
+  hero {
+    name
+    friends {
+      name
+    }
+  }
+}
+```
+
+> 작업 이름을 이용한 쿼리 결과 예
+
+```GraphQL
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "friends": [
+        {
+          "name": "Luke Skywalker"
+        },
+        {
+          "name": "Han Solo"
+        },
+        {
+          "name": "Leia Organa"
+        }
+      ]
+    }
+  }
+}
+```
+
+작업 타입은 쿼리(`query`), 뮤테이션(`mutation`), 구독(`subscription`)이 될 수 있으며, 어떤 작업의 타입인지를 기술합니다.
+
+작업 이름은 의미있고 명시적인 작업의 이름입니다. 디버깅이나 서버 측에서 로깅하는데에 매우 유용 할 수 있습니다. 네트워크 로그나 GraphQL 서버에 문제가 발생하면 내용을 확인하는 대신 코드에서 쿼리 이름을 찾아내는 것이 더 쉽습니다.
+
+좋아하는 프로그래밍 언어늬 함수명처럼 생각해보세요.
+
+예를 들어, JavasScrip에서는 쉽게 익명 함수를 사용할 수 있지만, 함수에 이름을 부여하면 코드를 디버깅하고 호출되었을 때 로깅하는 것이 더 쉽습니다. 같은 방식으로, GraphQL 쿼리와 뮤테이션 이름과 프래그먼트 이름은 서버 측에서 Graph 요청을 식별하는데 유용한 디버깅 도구가 될 수 있습니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/queries/) - https://graphql-kr.github.io/learn/queries/
