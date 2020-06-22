@@ -171,6 +171,175 @@ REST와 같은 시스템에서는 요청에 쿼리 파라미터와 `URL 세그�
 
 위 예에서 두 `hero` 필드는 서로 충돌하지만, 서로 다른 이름의 별칭을 지정해주었기 때문에 한 요청에서 두 결과를 모두 얻을 수 있습니다.
 
+## 프래그먼트
+
+어플리케이션에서 상대적으로 복잡한 페이지가 있다고 가정해 봅시다. 친구(`freinds`)를 가진 두 영웅(`hero`)을 순서대로 요청한다고 해봅시다. 그러면 쿼리가 복잡해질 수 있습니다. 이렇게 되면 필드를 최소 두 번 반복해야 합니다.
+
+이것이 _프래그먼트_ 라는 **재사용 가능한 단위**가 GraphQL에 포함된 이유입니다. 프래그먼트를 사용하면 필드셋(?)을 구성한 다음 필요한 쿼리에 포함시킬 수 있습니다. 다음은 프래그먼트를 사용하여 위 상황을 해결하는 예입니다.
+
+필드셋 <- 필드에 들어갈 내용을 세팅한다라고 이해했다.
+
+> 프래그먼트를 이용한 쿼리 예
+
+```GraphQL
+{
+  leftComparison: hero(episode: EMPIRE) {
+    ...comparisonFields
+  }
+  rightComparison: hero(episode: JEDI) {
+    ...comparisonFields
+  }
+}
+
+fragment comparisonFields on Character {
+  name
+  appearsIn
+  friends {
+    name
+  }
+}
+```
+
+> 프래그먼트를 이용한 쿼리 결과 예
+
+```GraphQL
+{
+  "data": {
+    "leftComparison": {
+      "name": "Luke Skywalker",
+      "appearsIn": [
+        "NEWHOPE",
+        "EMPIRE",
+        "JEDI"
+      ],
+      "friends": [
+        {
+          "name": "Han Solo"
+        },
+        {
+          "name": "Leia Organa"
+        },
+        {
+          "name": "C-3PO"
+        },
+        {
+          "name": "R2-D2"
+        }
+      ]
+    },
+    "rightComparison": {
+      "name": "R2-D2",
+      "appearsIn": [
+        "NEWHOPE",
+        "EMPIRE",
+        "JEDI"
+      ],
+      "friends": [
+        {
+          "name": "Luke Skywalker"
+        },
+        {
+          "name": "Han Solo"
+        },
+        {
+          "name": "Leia Organa"
+        }
+      ]
+    }
+  }
+}
+```
+
+예제 쿼리문을 보니까 이해가 됐다. 중복되는 내용의 쿼리를 프래그먼트라는 단위로 나눠서 필드에 ex) ...프래그먼트\_이름 이런 형식으로 사용을 하는것이다. 선언 방식은 ex) fragment 프래그먼트명 on 스키마(?)
+
+필드가 반복될 경우 위 쿼리가 꽤 반복될 것을 알 수 있습니다. 프래그먼트 개념은 복잡한 응용 프로그램의 데이터 요구사항을 작은 단위로 분할하는데 사용됩니다. 특히 다른 프래그먼트와 함께 여러 UI 구성 요소를 하나의 초기 데이터 fetch로 통합해야하는 경우에 많이 사용됩니다.
+
+> 특히 다른 프래그먼트와 함께 여러 UI 구성 요소를 하나의 초기 데이터 fetch로 통합해야하는 경우에 많이 사용됩니다. <- 무슨 뜻인지 모르겠다.
+
+### 프래그먼트 안에서 변수 사용하기
+
+쿼리나 뮤테이션에 선언된 변수는 프래그먼트에 접근할 수 있습니다.
+
+> 변수 사용 쿼리 예
+
+```GraphQL
+query HeroComparison($first: Int = 3) {
+  leftComparison: hero(episode: EMPIRE) {
+    ...comparisonFields
+  }
+  rightComparison: hero(episode: JEDI) {
+    ...comparisonFields
+  }
+}
+
+fragment comparisonFields on Character {
+  name
+  friendsConnection(first: $first) {
+    totalCount
+    edges {
+      node {
+        name
+      }
+    }
+  }
+}
+```
+
+> 변수 사용 쿼리 결과 예
+
+```GraphQL
+{
+  "data": {
+    "leftComparison": {
+      "name": "Luke Skywalker",
+      "friendsConnection": {
+        "totalCount": 4,
+        "edges": [
+          {
+            "node": {
+              "name": "Han Solo"
+            }
+          },
+          {
+            "node": {
+              "name": "Leia Organa"
+            }
+          },
+          {
+            "node": {
+              "name": "C-3PO"
+            }
+          }
+        ]
+      }
+    },
+    "rightComparison": {
+      "name": "R2-D2",
+      "friendsConnection": {
+        "totalCount": 3,
+        "edges": [
+          {
+            "node": {
+              "name": "Luke Skywalker"
+            }
+          },
+          {
+            "node": {
+              "name": "Han Solo"
+            }
+          },
+          {
+            "node": {
+              "name": "Leia Organa"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/queries/) - https://graphql-kr.github.io/learn/queries/
