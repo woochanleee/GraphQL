@@ -540,6 +540,62 @@ query Hero($episode: Episode, $withFriends: Boolean!) {
 
 지시어는 쿼리의 필드를 추가하고 제거하기 위해 문자열을 조작을 해야하는 상황을 피하는데 유용할 수 있습니다. 서버에서는 새로운 지시어를 정의하여 실험적인 기능을 추가할 수도 있습니다.
 
+## 뮤테이션
+
+지금까지 GraphQL에 대한 대부분의 이야기는 데이터 가져오기(`fetch`)에 초점을 맞추었습니다. 하지만 완전한 데이터 플랫폼은 서버 측 데이터를 수정할 수도 있어야 합니다.
+
+REST에서는 모든 요청이 서버에 몇 가지 사이드 이펙트를 일으킬 수 있지만 규칙에 따라 데이터 수정을 위해 `GET` 요청을 사용하지 않습니다. GraphQL도 마찬가입니다.  
+기술적으로는 어떠한 쿼리든 데이터를 수정할 수도 있습니다. **하지만 변경을 발생시키는 작업이 명시적으로 뮤테이션을 통해 전송되어야 한다는 규칙**을 정하는 것이 좋습니다.
+
+쿼리와 마찬가지로 뮤테이션 필드가 객체 타입을 반환하면 중첩 필드를 요청할 수 있습니다. 이는 변경된 객체의 새로운 상태를 가져오는 데에 유용합니다. 간단한 뮤테이션 예제를 살펴보겠습니다.
+
+> 사이드 이펙트 <- 구현하고자 하는 형태의 기능이 동작하지 않고 어떠한 다른 요인으로 인해서 동작을 못하거나 값이 다른 여러가지 상황을 통상적으로 사이드 이펙트라고 표현한다.
+
+> 뮤테이션 예
+
+```GraphQL
+mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+  createReview(episode: $ep, review: $review) {
+    stars
+    commentary
+  }
+}
+
+# VARIABLES
+{
+  "ep": "JEDI",
+  "review": {
+    "stars": 5,
+    "commentary": "This is a great movie!"
+  }
+}
+```
+
+> 뮤테이션 결과 예
+
+```GraphQL
+{
+  "data": {
+    "createReview": {
+      "stars": 5,
+      "commentary": "This is a great movie!"
+    }
+  }
+}
+```
+
+`createReview` 필드가 새로 생성된 리뷰의 `stars` 와 `commentary` 필드를 반환합니다. 이는 하나의 요청으로 필드의 새 값을 변경하고 쿼리할 수 있기 때문에 기존 데이터를 변경하는 경우(예: 필드를 증가시킬 때) 특히 유용합니다.
+
+이 예제에서 전달한 `review` 변수는 스칼라값이 아닙니다. 인자로 전달될 수 있는 특별한 종류의 객체 타입인 _input object type_ 입니다. 스키마 페이지에서 입력 타입에 대해 자세히 알아보세요.
+
+### 뮤테이션의 다중 필드
+
+뮤테이션은 쿼리와 마찬가지로 여러 필드를 포함할 수 있습니다. 쿼리와 뮤테이션 사이에 중요한 차이점이 있습니다.
+
+**쿼리 필드는 병렬로 실행되지만 뮤테이션 필드는 하나씩 차례대로 실행됩니다.**
+
+즉, 하나의 요청에서 두 개의 `incrementCredits` 뮤테이션을 보내면 첫 번째는 두 번째 요청 전에 완료되는 것이 보장됩니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/queries/) - https://graphql-kr.github.io/learn/queries/
