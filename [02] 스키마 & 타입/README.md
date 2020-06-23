@@ -69,6 +69,22 @@ type Character {
 
 이제 GraphQL 객체 타입이 무엇인지 배웠으며, 기본적인 GraphQL 타입 언어를 읽을 수 있을 것입니다.
 
+## 인자
+
+GraphQL 객체 타입의 모든 필드는 0개 이상의 인수를 가질 수 있습니다.(예: 아래 `length` 필드)
+
+```GraphQL
+type Starship {
+  id: ID!
+  name: String!
+  length(unit: LengthUnit = METER): Float
+}
+```
+
+모든 인수에는 이름이 있습니다. 함수가 순서있는 인자를 가져오는 JavaScript나 Python과 같은 언어와 달리 GraphQL의 모든 인자는 특별한 이름으로 전달됩니다. 이 경우, `length` 필드는 하나의 인자 `unit` 을 가집니다.
+
+인자는 필수이거나 선택일수 있습니다. 인자가 선택적일 경우 _기본값_ 을 정의할 수 있습니다. `unit` 인자가 전달되지 않으면 기본적으로 `METER` 로 설정됩니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
