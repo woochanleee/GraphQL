@@ -47,6 +47,28 @@ GraphQL 쿼리의 형태와 결과가 거의 일치하기 때문에 서버에 �
 
 GraphQL 서비스는 어떤 언어로든 작성할 수 있습니다. GraphQL 스키마에 대해 이야기하기 전에 JavaScript와 같은 특정 언어 문법에 의존할 수 없기 때문에 간단한 언어를 정의할 것입니다. 여기서는 `GraphQL 스키마 언어(GraphQL schema language)`를 사용할 것입니다. 이것은 쿼리 언어와 비슷하며, GraphQL 스키마를 언어에 의존적이지 않은 방식으로 표현할 수 있게 해줍니다.
 
+## 객체 타입과 필드
+
+GraphQL 스키마의 가장 기본적인 구성 요소는 객체 타입입니다. 객체 타입은 서비스에서 가져올 수 있는 객체의 종류와 그 객체의 필드를 나타냅니다.  
+GraphQL 스키마 언어에서는 다음과 같이 표현할 수 있습니다.
+
+```GraphQL
+type Character {
+  name: String!
+  appearsIn: [Episode]!
+}
+```
+
+위 언어는 꽤 읽을만 하지만, 이해가 쉽도록 이 언어를 살펴 보겠습니다.
+
+- `Character` 는 _GraphQL_ 객체 타입입니다. 즉, 필드가 있는 타입입니다. 스키마의 대부부의 타입은 객체 타입입니다.
+- `name` 과 `appearsIn` 은 `Character` 타입의 _필드_ 입니다. 즉 `name` 과 `appearsIn` 은 GraphQL 쿼리의 `Character` 타입 어디서든 사용할 수 있는 필드입니다.
+- `String` 은 내장된 _스칼라_ 타입 중 하나입니다. 이는 스칼라 객체로 해석되는 타입이며 쿼리에서 하위 선택을 할 수 없습니다. 스칼라 타입은 나중에 자세히 다룰 것입니다.
+- `String!` 은 필드가 _non-nullable_ 임을 의미합니다. 즉, 이 필드를 쿼리할 때 GraphQL 서비스가 항상 값을 반환한다는 것을 의미합니다. 타입 언어에서는 이것을 느낌표로 나타냅니다.
+- `[Episode]!` 는 `Episode` 객체의 _배열_ _(_ _array_ _)_ 을 나타냅니다. 또한 _non-nullable_ 이기 때문에 `appearsIn` 필드를 쿼리할 때 항상(0개 이상의 아이템을 가진) 배열을 기대할 수 있습니다.
+
+이제 GraphQL 객체 타입이 무엇인지 배웠으며, 기본적인 GraphQL 타입 언어를 읽을 수 있을 것입니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
