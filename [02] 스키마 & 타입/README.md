@@ -43,6 +43,10 @@ GraphQL 쿼리의 형태와 결과가 거의 일치하기 때문에 서버에 �
 
 모든 GraphQL 서비스는 해당 서비스에서 쿼리 가능한 데이터들을 완벽하게 알려주는 타입들을 정의하고, 쿼리가 들어오면 해당 스키마에 대해 유효한지 검사한 후 실행됩니다.
 
+## 타입 언어
+
+GraphQL 서비스는 어떤 언어로든 작성할 수 있습니다. GraphQL 스키마에 대해 이야기하기 전에 JavaScript와 같은 특정 언어 문법에 의존할 수 없기 때문에 간단한 언어를 정의할 것입니다. 여기서는 `GraphQL 스키마 언어(GraphQL schema language)`를 사용할 것입니다. 이것은 쿼리 언어와 비슷하며, GraphQL 스키마를 언어에 의존적이지 않은 방식으로 표현할 수 있게 해줍니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
