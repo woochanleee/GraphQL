@@ -85,6 +85,56 @@ type Starship {
 
 인자는 필수이거나 선택일수 있습니다. 인자가 선택적일 경우 _기본값_ 을 정의할 수 있습니다. `unit` 인자가 전달되지 않으면 기본적으로 `METER` 로 설정됩니다.
 
+## 쿼리 타입 & 뮤테이션 타입
+
+스키마 대부분의 타입은 일반 객체 타입이지만 스키마 내에는 **특수한 두 가지 타입**이 있습니다.
+
+```GraphQL
+schema {
+  query: Query
+  mutation: Mutation
+}
+```
+
+모든 GraphQL 서비스는 `query` 타입을 가지며 `mutation` 타입은 가질 수도 있고 안 가질수도 있습니다. 이러한 타입은 일반 객체 타입과 동일하지만 모든 GraphQL 쿼리의 _진입점_ _(_ _entry point_ _)_ 을 정의하므로 특별합니다. 따라서 다음과 같은 쿼리를 볼 수 있습니다.
+
+```GraphQL
+query {
+  hero {
+    name
+  }
+  droid(id: "2000") {
+    name
+  }
+}
+```
+
+```GraphQL
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2"
+    },
+    "droid": {
+      "name": "C-3PO"
+    }
+  }
+}
+```
+
+즉, GraphQL 서비스는 `hero` 및 `droid` 필드가 있는 `Query` 타입이 있어야 합니다.
+
+```GraphQL
+type Query {
+  hero(episode: Episode): Character
+  droid(id: ID!): Droid
+}
+```
+
+뮤테이션도 비슷한 방식으로 작동합니다. 즉, `Mutation` 타입의 필드를 정의하면 쿼리에서 호출할 수 있는 루트 뮤테이션 필드로 사용할 수 있습니다.
+
+스키마에 대한 `진입점` 이라는 특수한 점 이외의 쿼리 타입과 뮤테이션 타입은 다른 GraphQL 객체 타입과 동일하며 해당 필드는 정확히 동일한 방식으로 작동한다는 점을 기억하세요.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
