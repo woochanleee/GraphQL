@@ -396,6 +396,58 @@ query HeroForEpisode($ep: Episode!) {
 
 이에 대한 자세한 내용은 [01]장 인라인 프래그먼트 단원을 참조하세요.
 
+## 유니온 타입
+
+유니온 타입은 인터페이스와 매우 유사하지만, 타입 간에 공통 필드를 특정하지 않습니다.
+
+```GraphQL
+union SearchResult = Human | Droid | Starship
+```
+
+스키마에서 `SearchResult` 타입을 반환 할 때마다, `Human`, `Droid`, `Starship`을 얻을 수 있습니다. 유니온 타입의 멤버는 구체적인 객체 타입이어야 합니다. 인터페이스나 유니온 타입에서 다른 유니온 타입을 사용할 수 없습니다.
+
+이 경우, `SearchResult` 유니온 타입을 반환하는 필드를 쿼리하면, 어떤 필드라도 쿼리할 수 있는 조건부 프래그먼트를 사용해야 합니다.
+
+```GraphQL
+{
+  search(text: "an") {
+    ... on Human {
+      name
+      height
+    }
+    ... on Droid {
+      name
+      primaryFunction
+    }
+    ... on Starship {
+      name
+      length
+    }
+  }
+}
+```
+
+```GraphQL
+{
+  "data": {
+    "search": [
+      {
+        "name": "Han Solo",
+        "height": 1.8
+      },
+      {
+        "name": "Leia Organa",
+        "height": 1.5
+      },
+      {
+        "name": "TIE Advanced x1",
+        "length": 9.2
+      }
+    ]
+  }
+}
+```
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
