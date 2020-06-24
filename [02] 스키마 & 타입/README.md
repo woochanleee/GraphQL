@@ -448,6 +448,52 @@ union SearchResult = Human | Droid | Starship
 }
 ```
 
+## 입력 타입
+
+지금까지는 열거형 타입이나 문자열과 같은 스칼라 값을 인자로 필드에 전달하는 방법에 대해서만 설명했습니다. 하지만 복잡한 객체도 쉽게 전달할 수 있습니다. 이는 뮤테이션에서 특히 유용합니다. 뮤테이션은 생성될 전체 객체를 전달하고자 할 수 있습니다. GraphQL 스키마 언어에서 입력 타입은 일반 객체 타입과 정확히 같지만, `type` 대신 `input`을 사용합니다.
+
+> input 선언 예
+
+```GraphQL
+input ReviewInput {
+  stars: Int!
+  commentary: String
+}
+```
+
+다음은 뮤테이션에서 입력 객체 타입을 사용하는 방법입니다.
+
+```GraphQL
+mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+  createReview(episode: $ep, review: $review) {
+    stars
+    commentary
+  }
+}
+
+# VARIABLES
+{
+  "ep": "JEDI",
+  "review": {
+    "stars": 5,
+    "commentary": "This is a great movie!"
+  }
+}
+```
+
+```GraphQL
+{
+  "data": {
+    "createReview": {
+      "stars": 5,
+      "commentary": "This is a great movie!"
+    }
+  }
+}
+```
+
+입력 객체 타입의 입력란은 입력 객체 타입을 참조할 수 있지만, 입력 및 출력 타입을 스키마에 혼합할 수는 없습니다. 또한 필드에 인자를 가질 수 없습니다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
