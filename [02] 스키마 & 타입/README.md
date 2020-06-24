@@ -204,6 +204,91 @@ enum Episode {
 
 다양한 언어로 작성된 GraphQL 서비스 구현은 열거형 타입을 처리 할 수 있는 언어별로 고유한 방법을 갖습니다. `enum` 을 지원하는 언어에서는 구현시 이를 활용할 수 있습니다. 하지만, 열거형 타입이 없는 JavaScript와 같은 언어에서 이러한 값은 내부적으로 정수 집합에 매핑될 수 있습니다. 하지만 이러한 세부 정보는 클라이언트에 노출되지 않으며, 열거형 값의 문자열로만 작동합니다.
 
+## 리스트와 Non-Null
+
+객체 타입, 스칼라 타입, 열거형 타입은 GraphQL 에서 정의할 수 있는 유일한 타입입니다. 하지만 스키마의 다른 부분이나 쿼리 변수 선언에서 타입을 사용하면 해당 값의 유효성 검사를 할 수 있는 _타입 수정자_ _(_ _type modifiers_ _)_ 를 적용할 수 있습니다. 예제를 살펴봅시다.
+
+```GraphQL
+type Character {
+  name: String!
+  appearsIn: [Episode]!
+}
+```
+
+`String` 타입을 사용하고 타입 뒤에 느낌표 `!` 를 추가하여 _Non-Null_ 로 표시했습니다. 즉, 서버는 항상 이 필드에 대해 null이 아닌 값을 반환할 것을 기대할수 있고, null값이 발생되면 GraphQL 실행 오류가 발생하고, 클라이언트에게 무언가 잘못되었음을 알립니다.
+
+Non-Null 타입 수정자는 필드에 대한 인자를 정의할 때도 사용할 수 있습니다. 이는 GraphQL 서버가 문자열이나 변수 상관없이 null 값이 해당 인자로 전달되는 경우, 유효성 검사 오류를 반환하게 됩니다.
+
+```GraphQL
+query DroidById($id: ID!) {
+  droid(id: $id) {
+    name
+  }
+}
+
+# VARIABLES
+{
+  "id": null
+}
+```
+
+```GraphQL
+{
+  "errors": [
+    {
+      "message": "Variable \"$id\" of required type \"ID!\" was not provided.",
+      "locations": [
+        {
+          "line": 1,
+          "column": 17
+        }
+      ]
+    }
+  ]
+}
+```
+
+리스트도 비슷한 방식으로 동작합니다. 타입 수정자를 사용하여 타입을 `List` 로 표시할 수 있습니다. 이 필드는 해당 타입의 배열을 반환합니다. 스키마 언어에서, 타입을 대괄호 `[]` 로 묶는 것으로 표현됩니다. 유효성 검사 단계에서 해당 값에 대한 배열이 필요한 인자에 대해서도 동일하게 작동합니다.
+
+Non-Null 및 List 수정자를 결합할 수도 있습니다. 예를 들어, (Null이 아닌 문자열)의 리스트를 가질 수 있습니다.
+
+```GraphQL
+myField: [String!]
+```
+
+> 궁금증 -> [String]! 이건 안되나..? ~~아래 나오네!ㅋㅋ~~
+
+즉, _list_ 자체는 null 일 수 있지만, null 을 가질 수 없습니다. 예를 들어
+
+```GraphQL
+myField: null // valid
+myField: [] // valid
+myField: ['a', 'b'] // valid
+myField: ['a', null, 'b'] // error
+```
+
+null 이 아닌 (문자열 리스트)를 정의했다고 가정해봅시다.
+
+```GraphQL
+myField: [String]!
+```
+
+리스트 자체는 null 일 수 없지만, null 값을 포함할 수 있습니다.
+
+```GraphQL
+myField: null // error
+myField: [] // valid
+myField: ['a', 'b'] // valid
+myField: ['a', null, 'b'] // valid
+```
+
+필요에 따라 여러개의 Null, List 수정자를 중첩할 수 있습니다.
+
+> [String!] vs [String]!
+
+- 원문에 보면 [String!]: List of Non-Null Strings
+- [String]!: Non-Null List of Strings 이라고 나온다.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
