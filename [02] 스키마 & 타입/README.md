@@ -289,6 +289,113 @@ myField: ['a', null, 'b'] // valid
 - 원문에 보면 [String!]: List of Non-Null Strings
 - [String]!: Non-Null List of Strings 이라고 나온다.
 
+## 인터페이스
+
+여러 타입 시스템과 마찬가지로 GraphQL도 인터페이스를 지원합니다. _인터페이스_ 는 인터페이스를 구현하기 위해 타입이 포함해야 하는 특정 필드들을 포함하는 추상 타입입니다.
+
+예를 들면, Start Wars 3부작의 모든 캐릭터들을 표현하는 `Character` 인터페이스를 가질 수 있습니다.
+
+```GraphQL
+interface Character {
+  id: ID!
+  name: String!
+  friends: [Character]
+  appearsIn: [Episode]!
+}
+```
+
+이것은 `Character` 를 _구현한(implements)_ 모든 타입은 이러한 인자와 리턴 타입을 가진 정확한 필드를 가져야 한다는 것을 의미합니다.
+
+다음은 `Character` 를 구현한 몇 가지 타입 예제입니다.
+
+```GraphQL
+type Human implements Character {
+  id: ID!
+  name: String!
+  friends: [Character]
+  appearsIn: [Episode]!
+  starships: [Starship]
+  totalCredits: Int
+}
+
+type Droid implements Character {
+  id: ID!
+  name: String!
+  friends: [Character]
+  appearsIn: [Episode]!
+  primaryFunction: String
+}
+```
+
+두 타입 모두 `Character` 인터페이스의 모든 필드를 가지고 있습니다. 또한 특정 타입에 추가 필드 `totalCredits`, `startships`, `primaryFunction` 을 가질 수도 있습니다.
+
+인터페이스는 객체나 객체리스트를 반환하는 경우에 유용하지만, 다양한 다른 타입이 있을 수도 있습니다.
+
+예를 들어, 다음 쿼리는 오류를 반환합니다.
+
+```GraphQL
+query HeroForEpisode($ep: Episode!) {
+  hero(episode: $ep) {
+    name
+    primaryFunction
+  }
+}
+
+# VARIABLES
+{
+  "ep": "JEDI"
+}
+```
+
+```GraphQL
+{
+  "errors": [
+    {
+      "message": "Cannot query field \"primaryFunction\" on type \"Character\". Did you mean to use an inline fragment on \"Droid\"?",
+      "locations": [
+        {
+          "line": 4,
+          "column": 5
+        }
+      ]
+    }
+  ]
+}
+```
+
+`hero` 필드는 `Character` 타입을 반환하는데, `episode` 인자에 따라 `Human`, `Droid` 중 하나일 수 있습니다. 위 쿼리는 `primaryFunction` 을 포함하지 않는 `Character` 인터페이스에 존재하는 필드만 요청할 수 있습니다.
+
+특정 객체 타입의 필드를 요청하려면 인라인 프래그먼트를 사용해야 합니다.
+
+```GraphQL
+query HeroForEpisode($ep: Episode!) {
+  hero(episode: $ep) {
+    name
+    ... on Droid {
+      primaryFunction
+    }
+  }
+}
+
+# VARIABLES
+{
+  "ep": "JEDI"
+}
+```
+
+```GraphQL
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "primaryFunction": "Astromech"
+    }
+  }
+}
+```
+
+이에 대한 자세한 내용은 [01]장 인라인 프래그먼트 단원을 참조하세요.
+
 # 참고 문헌
 
 [GraphQL-kr](https://graphql-kr.github.io/learn/schema/) - https://graphql-kr.github.io/learn/schema/
