@@ -217,3 +217,7 @@ GraphQL 은 모든 `Promise` 들을 기다릴 것이고, 객체 리스트로 남
   }
 }
 ```
+
+# 참고 문헌
+
+[GraphQL-kr](https://graphql-kr.github.io/learn/execution/) - https://graphql-kr.github.io/learn/execution/
