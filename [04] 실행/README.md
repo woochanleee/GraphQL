@@ -89,3 +89,21 @@ Query: {
 - `args`: GraphQL 쿼리의 필드에 제공된 인수.
 - `context`: 모든 `resolver` 함수에 전달되며, 현재 로그인한 사용자, 데이터베이스 액세스와 같은 중요한 문맥 정보를 보유하는 값.
 - `info`: 현재 쿼리, 스키마 정보와 관련된 필드별 정보를 보유하는 값. 자세한 내용은 [type GraphQLResolveInfo](https://graphql-kr.github.io/graphql-js/type/#graphqlobjecttype) 참조.
+
+## 기본 resolvers
+
+이제 `Human` 객체를 사용할 수 있게 되었으므로, GraphQL 은 요청된 필드를 사용할 수 있습니다.
+
+```GraphQL
+Human: {
+  name(obj, args, context) {
+    return obj.name
+  }
+}
+```
+
+GraphQL 서버는 타입 시스템을 통해 작동하며, 이는 다음에 어떤 작업을 수행해야 할지 결정해줍니다. `human` 필드가 무언가를 반환하기 전에, GraphQL은 타입 시스템 덕분에 `human` 필드가 `Human` 을 반환할 것을 이미 알고 있습니다.
+
+이 경우 `name` 을 `resolver` 하는 것은 매우 간단합니다. `name resolver` 함수가 호출되며, `obj` 인자는 이전 필드에서 반환된 `new Human` 객체입니다. `Human` 객체는 바로 반환할 수 있는 `name` 속성을 가질 것을 알 수 있습니다.
+
+사실, 많은 GraphQL 라이브러리는 `resolver` 를 생략할 수 있게 해주며, `resolver` 가 필드에 제공되지 않으면 같은 이름의 속성을 읽고 반환한다고 가정합니다.
